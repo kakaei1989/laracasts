@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\API\V01\Auth;
+namespace Unit\API\v1;
 
 use App\Models\User;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class AuthControllerTest extends TestCase
+class AuthTest extends TestCase
 {
 //    use RefreshDatabase;
 
@@ -26,7 +26,7 @@ class AuthControllerTest extends TestCase
         $response->assertStatus(201);
     }
 
-    public function test_login_should_be_validate()
+    public function test_login_should_be_validated()
     {
         $response = $this->postJson(route('auth.login'));
         $response->assertStatus(422);
@@ -55,4 +55,5 @@ class AuthControllerTest extends TestCase
         $response = $this->actingAs($user)->postJson(route('auth.logout'));
         $response->assertStatus(200);
     }
+
 }
