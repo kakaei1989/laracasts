@@ -13,6 +13,7 @@ class ChannelFactory extends Factory
      *
      * @var string
      */
+//    protected $faker;
     protected $model = Channel::class;
 
     /**

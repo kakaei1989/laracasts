@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\v1;
 use App\Http\Controllers\Controller;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -42,10 +43,13 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        resolve(UserRepository::class)->create($request);
+        $user = resolve(UserRepository::class)->create($request);
+        $defaultSuperAdminEmail = config('permission.default_super_admin_email');
+        $user->email === $defaultSuperAdminEmail ? $user->assignRole('Super Admin') : $user->assignRole('User');
+
         return response()->json([
             'message' => 'user created successfully'
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
 
     public function user()
@@ -60,5 +64,4 @@ class AuthController extends Controller
             'message' => 'logged out successfully'
         ], 200);
     }
-
 }
