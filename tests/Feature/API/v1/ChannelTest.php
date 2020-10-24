@@ -1,10 +1,11 @@
 <?php
 
-namespace Unit\API\v1;
+namespace tests\Feature\API\v1;
 
 use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Http\Response;
+use Laravel\Sanctum\Sanctum;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -33,6 +34,7 @@ class ChannelTest extends TestCase
 
     public function testGetAllChannelsList()
     {
+
         $response = $this->get(route('channel.all'));
         $response->assertStatus(200);
     }
@@ -40,22 +42,20 @@ class ChannelTest extends TestCase
     public function test_create_channel_should_be_validated()
     {
         $this->registerRolesAndPermissions();
-
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $user->givePermissionTo('channel management');
-
-        $response = $this->actingAs($user)->postJson(route('channel.create'));
-
+        $response = $this->postJson(route('channel.create'));
         $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function test_create_new_channel()
     {
         $this->registerRolesAndPermissions();
-
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $user->givePermissionTo('channel management');
-        $response = $this->actingAs($user)->postJson(route('channel.create'), [
+        $response = $this->postJson(route('channel.create'), [
             'name' => 'alexis'
         ]);
         $response->assertStatus(Response::HTTP_CREATED);
@@ -65,8 +65,9 @@ class ChannelTest extends TestCase
     {
         $this->registerRolesAndPermissions();
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $user->givePermissionTo('channel management');
-        $response = $this->actingAs($user)->json('PUT', route('channel.update'), []);
+        $response = $this->json('PUT', route('channel.update'), []);
         $response->assertStatus(422);
     }
 
@@ -74,9 +75,10 @@ class ChannelTest extends TestCase
     {
         $this->registerRolesAndPermissions();
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $user->givePermissionTo('channel management');
         $channel = Channel::factory()->create(['name' => 'mahshid']);
-        $response = $this->actingAs($user)->json('PUT', route('channel.update'), [
+        $response = $this->json('PUT', route('channel.update'), [
             'id' => $channel->id,
             'name' => 'alexis'
         ]);
@@ -87,10 +89,11 @@ class ChannelTest extends TestCase
 
     public function test_channel_delete_should_be_validated()
     {
-          $this->registerRolesAndPermissions();
+        $this->registerRolesAndPermissions();
         $user = User::factory()->create();
+        Sanctum::actingAs($user);
         $user->givePermissionTo('channel management');
-        $response = $this->actingAs($user)->json('DELETE', route('channel.delete'), []);
+        $response = $this->json('DELETE', route('channel.delete'), []);
         $response->assertStatus(422);
     }
 }

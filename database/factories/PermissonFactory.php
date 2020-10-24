@@ -2,19 +2,17 @@
 
 namespace Database\Factories;
 
-use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
-class ChannelFactory extends Factory
+class ModelFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-//    protected $faker;
-    protected $model = Channel::class;
+    protected $model = Permission::class;
 
     /**
      * Define the model's default state.
@@ -23,10 +21,8 @@ class ChannelFactory extends Factory
      */
     public function definition()
     {
-        $name = $this->faker->name;
         return [
-            'name' => $name,
-            'slug' => Str::slug($name)
+            'name' => $this->faker->name,
         ];
     }
 }
