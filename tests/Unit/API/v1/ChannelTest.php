@@ -3,10 +3,34 @@
 namespace Unit\API\v1;
 
 use App\Models\Channel;
+use App\Models\User;
+use Illuminate\Http\Response;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ChannelTest extends TestCase
 {
+    public function registerRolesAndPermissions()
+    {
+        $roleInDatabase = Role::where('name', Config('permission.default_roles')[0]);
+        if ($roleInDatabase->count() < 1) {
+            foreach (Config('permission.default_roles') as $role) {
+                Role::create([
+                    'name' => $role
+                ]);
+            }
+        }
+        $permissionInDatabase = Permission::where('name', Config('permission.default_permissions')[0]);
+        if ($permissionInDatabase->count() < 1) {
+            foreach (Config('permission.default_permissions') as $permission) {
+                Permission::create([
+                    'name' => $permission
+                ]);
+            }
+        }
+    }
+
     public function testGetAllChannelsList()
     {
         $response = $this->get(route('channel.all'));
@@ -15,28 +39,44 @@ class ChannelTest extends TestCase
 
     public function test_create_channel_should_be_validated()
     {
-        $response = $this->postJson(route('channel.create'));
-        $response->assertStatus(422);
+        $this->registerRolesAndPermissions();
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+
+        $response = $this->actingAs($user)->postJson(route('channel.create'));
+
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function test_create_new_channel()
     {
-        $response = $this->postJson(route('channel.create'), [
+        $this->registerRolesAndPermissions();
+
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+        $response = $this->actingAs($user)->postJson(route('channel.create'), [
             'name' => 'alexis'
         ]);
-        $response->assertStatus(201);
+        $response->assertStatus(Response::HTTP_CREATED);
     }
 
     public function test_channel_update_should_be_validated()
     {
-        $response = $this->json('PUT', route('channel.update'), []);
+        $this->registerRolesAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+        $response = $this->actingAs($user)->json('PUT', route('channel.update'), []);
         $response->assertStatus(422);
     }
 
     public function test_channel_update()
     {
+        $this->registerRolesAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
         $channel = Channel::factory()->create(['name' => 'mahshid']);
-        $response = $this->json('PUT', route('channel.update'), [
+        $response = $this->actingAs($user)->json('PUT', route('channel.update'), [
             'id' => $channel->id,
             'name' => 'alexis'
         ]);
@@ -47,7 +87,10 @@ class ChannelTest extends TestCase
 
     public function test_channel_delete_should_be_validated()
     {
-        $response = $this->json('DELETE', route('channel.delete'), []);
+          $this->registerRolesAndPermissions();
+        $user = User::factory()->create();
+        $user->givePermissionTo('channel management');
+        $response = $this->actingAs($user)->json('DELETE', route('channel.delete'), []);
         $response->assertStatus(422);
     }
 }
