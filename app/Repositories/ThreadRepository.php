@@ -3,10 +3,11 @@
 namespace App\Repositories;
 
 use App\Models\Thread;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ThreadRepository
 {
-
     public function getAllAvailableThreads()
     {
         return Thread::where('flag', 1)->latest()->get();
@@ -15,5 +16,16 @@ class ThreadRepository
     public function getThreadBySlug($slug)
     {
         return Thread::where(['slug' => $slug, 'flag' => 1])->first();
+    }
+
+    public function store(Request $request)
+    {
+        Thread::create([
+            'title' => $request->input('title'),
+            'slug' => Str::slug($request->input('title')),
+            'content' => $request->input('content'),
+            'channel_id' => $request->input('channel_id'),
+            'user_id' => auth()->user()->id
+        ]);
     }
 }
