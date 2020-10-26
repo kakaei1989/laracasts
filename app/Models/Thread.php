@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Thread extends Model
 {
     use HasFactory;
-    protected $fillable = ['title', 'content', 'channel_id', 'user_id','slug'];
+    protected $fillable = ['title', 'content', 'channel_id', 'user_id','slug','best_answer_id'];
 
     public function channel()
     {
